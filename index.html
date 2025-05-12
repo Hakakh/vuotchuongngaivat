@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Luyện Nói Tiếng Anh - Vượt Chướng Ngại Vật</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f8ff;
+            padding: 10px; /* Giảm padding để game area có nhiều không gian hơn */
+            line-height: 1.6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden; /* Ngăn cuộn ngang */
+        }
+
+        .container {
+            max-width: 700px; /* Tăng chiều rộng tối đa */
+            width: 100%;
+            margin: 10px auto; /* Giảm lề dọc */
+            background: #fff;
+            padding: 15px; /* Giảm padding */
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            box-sizing: border-box; /* Tính cả padding và border vào width */
+        }
+
+        h1 {
+            text-align: center;
+            color: #0056b3;
+            margin-bottom: 15px; /* Giảm margin */
+            font-size: 1.8em; /* Giảm kích thước tiêu đề */
+        }
+
+        /* Style cho khu vực game Canvas */
+        #gameCanvas {
+            border: 2px solid #007bff;
+            background-color: #87ceeb; /* Màu nền trời */
+            display: block; /* Loại bỏ khoảng trắng dưới canvas */
+            margin: 10px auto; /* Căn giữa canvas */
+            width: 100%; /* Canvas sẽ chiếm toàn bộ chiều rộng container */
+            max-width: 680px; /* Chiều rộng tối đa cho canvas */
+            height: 300px; /* Chiều cao cố định cho canvas */
+        }
+
+        .game-info {
+            margin: 10px 0;
+            font-size: 1em;
+            color: #555;
+        }
+
+        .question {
+            margin: 15px 0 10px 0; /* Giảm lề */
+            font-size: 1.1em; /* Giảm kích thước chữ */
+            font-weight: bold;
+            color: #0056b3; /* Màu chữ câu hỏi */
+        }
+
+        .target-sentence {
+            margin-top: 5px;
+            font-size: 0.95em;
+            color: #007bff;
+            font-style: italic;
+        }
+
+        .answer-box {
+            background: #eef;
+            padding: 10px; /* Giảm padding */
+            border-radius: 5px;
+            margin-top: 10px;
+            min-height: 1.2em; /* Giảm chiều cao tối thiểu */
+            text-align: left;
+            word-wrap: break-word;
+            border: 1px solid #cce;
+            font-size: 0.95em; /* Giảm kích thước chữ */
+        }
+
+        button {
+            margin: 8px 4px; /* Giảm lề và khoảng cách giữa các nút */
+            padding: 10px 15px; /* Giảm padding */
+            font-size: 0.95em; /* Giảm kích thước chữ */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .feedback { /* Đổi tên từ .result sang .feedback */
+            background: #e0ffe0;
+            padding: 10px; /* Giảm padding */
+            margin-top: 10px;
+            border-radius: 5px;
+            text-align: left;
+            border: 1px solid #a3e0a3;
+            font-weight: bold;
+            font-size: 0.95em; /* Giảm kích thước chữ */
+        }
+
+        .results-display {
+            background: #fff8e1;
+            padding: 15px; /* Giảm padding */
+            margin-top: 15px;
+            border-radius: 8px;
+            text-align: left;
+            border: 1px solid #ffecb3;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            font-size: 0.95em; /* Giảm kích thước chữ */
+        }
+
+        .results-display h3 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 10px; /* Giảm margin */
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px; /* Giảm padding */
+            font-size: 1.3em; /* Giảm kích thước tiêu đề */
+        }
+
+        .results-display p {
+            margin-bottom: 8px; /* Giảm margin */
+            padding-bottom: 8px; /* Giảm padding */
+            border-bottom: 1px dashed #eee;
+        }
+        .results-display p:last-child {
+            border-bottom: none;
+        }
+
+        .results-display strong {
+            color: #007bff;
+        }
+
+        .results-display em {
+            color: #555;
+        }
+
+        .results-display button {
+            display: block;
+            margin: 15px auto 8px auto; /* Giảm lề */
+            background-color: #28a745;
+        }
+        .results-display button:hover {
+            background-color: #218838;
+        }
+
+        #copyFeedback {
+            margin-top: 10px; /* Giảm margin */
+            font-size: 0.9em; /* Giảm kích thước chữ */
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 8px; /* Giảm padding */
+            border-radius: 5px;
+            text-align: center;
+        }
+        #copyFeedback a {
+            color: #0056b3;
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 5px;
+            }
+            .container {
+                padding: 10px;
+                margin: 5px auto;
+            }
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            #gameCanvas {
+                height: 250px; /* Giảm chiều cao canvas trên màn hình nhỏ */
+            }
+            button {
+                padding: 8px 12px;
+                font-size: 0.9em;
+                margin: 5px 3px;
+            }
+            .question {
+                font-size: 1em;
+                margin: 10px 0;
+            }
+            .answer-box, .feedback, .results-display {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+            .results-display h3 {
+                font-size: 1.2em;
+            }
+        }
+
+    </style>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Luyện Nói Tiếng Anh - Vượt Chướng Ngại Vật</h1>
+
+        <div class="game-info">
+            Chướng ngại vật đã vượt qua: <span id="obstaclesCleared">0</span> / Tổng số: <span id="totalObstacles">0</span>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="questionArea" class="question">Bấm "Bắt đầu" để nghe câu hỏi.</div>
+        <div id="targetSentenceArea" class="target-sentence" style="display: none;"></div>
+
+        <div>
+            <button onclick="speakQuestion()" id="startButton">🔊 Bắt đầu</button>
+            <button onclick="startRecognition()" id="answerButton">🎤 Trả lời</button>
+        </div>
+        <div id="transcript" class="answer-box"></div>
+        <div id="feedback" class="feedback" style="display: none;"></div>
+
+        <div>
+            <button onclick="nextQuestion()" id="nextButton">➡️ Chướng ngại vật tiếp theo</button>
+            <button onclick="displayResults()" id="viewResultsButton">📊 Xem kết quả</button>
+        </div>
+
+        <div id="resultsDisplayArea" class="results-display" style="display: none;"></div>
+    </div>
+
+    <script>
+        // --- Cấu hình Game và Câu hỏi ---
+        const questions = [
+            // Các câu hỏi về đồ ăn - Đã thêm foodName và correctAnswer
+            { question: "What do you like to eat?", foodName: "apples", correctAnswer: "I like to eat apples." }, // Táo
+            { question: "What do you like to eat?", foodName: "bananas", correctAnswer: "I like to eat bananas." }, // Chuối
+            { question: "What do you like to eat?", foodName: "oranges", correctAnswer: "I like to eat oranges." }, // Cam
+            { question: "What do you like to eat?", foodName: "strawberries", correctAnswer: "I like to eat strawberries." }, // Dâu tây
+            { question: "What do you like to eat?", foodName: "watermelon", correctAnswer: "I like to eat watermelon." }, // Dưa hấu
+            { question: "What do you like to eat?", foodName: "mangoes", correctAnswer: "I like to eat mangoes." }, // Xoài
+            { question: "What do you like to eat?", foodName: "pineapples", correctAnswer: "I like to eat pineapples." }, // Dứa
+            { question: "What do you like to eat?", foodName: "cherries", correctAnswer: "I like to eat cherries." }, // Anh đào
+            { question: "What do you like to eat?", foodName: "broccoli", correctAnswer: "I like to eat broccoli." }, // Bông cải xanh
+            { question: "What do you like to eat?", foodName: "carrots", correctAnswer: "I like to eat carrots." }, // Cà rốt
+            { question: "What do you like to eat?", foodName: "corn", correctAnswer: "I like to eat corn." }, // Ngô
+            { question: "What do you like to eat?", foodName: "rice", correctAnswer: "I like to eat rice." }, // Gạo
+            { question: "What do you like to eat?", foodName: "noodles", correctAnswer: "I like to eat noodles." }, // Mì
+            { question: "What do you like to eat?", foodName: "chicken", correctAnswer: "I like to eat chicken." }, // Thịt gà
+            { question: "What do you like to eat?", foodName: "beef", correctAnswer: "I like to eat beef." }, // Thịt bò
+            { question: "What do you like to eat?", foodName: "fish", correctAnswer: "I like to eat fish." }, // Cá
+            { question: "What do you like to eat?", foodName: "eggs", correctAnswer: "I like to eat eggs." }, // Trứng
+            { question: "What do you like to eat?", foodName: "pizza", correctAnswer: "I like to eat pizza." }, // Bánh pizza
+            { question: "What do you like to eat?", foodName: "a hamburger", correctAnswer: "I like to eat a hamburger." }, // Bánh hamburger
+            { question: "What do you like to eat?", foodName: "ice cream", correctAnswer: "I like to eat ice cream." }  // Kem
+        ];
+
+        let currentIndex = 0; // Theo dõi chỉ số câu hỏi hiện tại
+        let studentAnswers = new Array(questions.length).fill(""); // Lưu trữ câu trả lời của học sinh
+        let obstaclesClearedCount = 0; // Số chướng ngại vật đã vượt qua
+
+        // --- DOM Elements ---
+        const questionArea = document.getElementById("questionArea");
+        const targetSentenceArea = document.getElementById("targetSentenceArea");
+        const transcriptDiv = document.getElementById("transcript");
+        const feedbackDiv = document.getElementById("feedback");
+        const resultsDisplayArea = document.getElementById("resultsDisplayArea");
+        const startButton = document.getElementById("startButton");
+        const answerButton = document.getElementById("answerButton");
+        const nextButton = document.getElementById("nextButton");
+        const viewResultsButton = document.getElementById("viewResultsButton");
+        const obstaclesClearedSpan = document.getElementById("obstaclesCleared");
+        const totalObstaclesSpan = document.getElementById("totalObstacles");
+
+
+        // --- Canvas Setup ---
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // Kích thước canvas (sẽ được điều chỉnh bởi CSS responsive)
+        let canvasWidth; // Khai báo
+        let canvasHeight; // Khai báo
+
+        // --- Game Variables ---
+        // Khai báo và khởi tạo các biến game ở đây
+        const groundHeight = 40; // Chiều cao mặt đất
+        let groundY; // Vị trí Y của mặt đất (sẽ được tính trong resizeCanvas)
+        const playerSize = 30; // Kích thước nhân vật (cho vùng va chạm/vị trí)
+        const playerColor = "#d9534f"; // Màu nhân vật (Đỏ)
+        const playerShapeSize = 30; // Kích thước hình vẽ nhân vật
+        let playerY; // Vị trí Y hiện tại của người chơi (sẽ được tính trong resizeCanvas)
+        let playerGroundY; // Vị trí Y khi người chơi đứng trên mặt đất (sẽ được tính trong resizeCanvas)
+        const playerX = 50; // Vị trí X cố định của người chơi trên màn hình
+
+        const obstacleWidth = 40; // Chiều rộng chướng ngại vật
+        const obstacleHeight = 60; // Chiều cao chướng ngại vật
+        const obstacleColor = "#8b4513"; // Màu chướng ngại vật (Nâu đất) - Không dùng trực tiếp nữa
+        const obstacleSpacing = 150; // Khoảng cách giữa các chướng ngại vật
+        const initialObstacleOffset = 200; // Khoảng cách ban đầu của chướng ngại vật đầu tiên từ lề trái
+        const obstacleEmojiSize = 30; // Kích thước emoji chướng ngại vật
+
+
+        // Biến cho hiệu ứng vật lý
+        let velocityY = 0; // Vận tốc theo trục Y
+        const gravity = 0.8; // Lực hấp dẫn (tăng dần vận tốc Y)
+        const jumpStrength = -15; // Lực nhảy ban đầu (vận tốc Y âm để đi lên)
+        let isJumping = false; // Trạng thái nhảy
+
+        let obstacles = []; // Mảng lưu trữ vị trí và trạng thái của chướng ngại vật
+        let gameSpeed = 3; // Tốc độ cuộn màn hình (khi trả lời đúng) - Tăng tốc độ một chút
+        let isMoving = false; // Trạng thái di chuyển ngang của màn hình
+        let moveDistance = 0; // Khoảng cách cần di chuyển ngang
+
+        // --- Audio Setup (using Tone.js) ---
+        let jumpSynth; // Bộ tổng hợp âm thanh cho tiếng nhảy
+
+        // Điều chỉnh kích thước canvas khi cửa sổ thay đổi kích thước
+        const resizeCanvas = () => {
+            canvasWidth = canvas.clientWidth;
+            canvasHeight = canvas.clientHeight;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            // Khi resize, cần cập nhật vị trí groundY và playerGroundY
+            groundY = canvasHeight - groundHeight;
+            playerGroundY = canvasHeight - groundHeight - playerSize;
+            // Điều chỉnh lại vị trí Y của player nếu đang ở trên mặt đất
+            if (!isJumping) {
+                 playerY = playerGroundY;
+            }
+            // Cần khởi tạo lại vị trí chướng ngại vật khi resize để chúng xuất hiện đúng
+            initializeObstacles(); // Khởi tạo lại chướng ngại vật
+            drawGame(); // Vẽ lại game khi kích thước thay đổi
+        };
+        window.addEventListener('resize', resizeCanvas);
+
+
+        // Khởi tạo chướng ngại vật
+        function initializeObstacles() {
+            obstacles = []; // Reset mảng chướng ngại vật
+            for (let i = 0; i < questions.length; i++) {
+                obstacles.push({
+                    // Điều chỉnh vị trí x ban đầu để chúng hiển thị ngay trên màn hình
+                    x: initialObstacleOffset + i * obstacleSpacing,
+                    y: canvasHeight - groundHeight - obstacleHeight, // Vị trí y của hình khối chướng ngại vật (không dùng nữa)
+                    cleared: false, // Trạng thái đã vượt qua hay chưa
+                    foodName: questions[i].foodName, // Lưu tên món ăn vào chướng ngại vật
+                    // Vị trí y cho emoji/text (căn giữa chiều cao obstacleHeight)
+                    emojiY: canvasHeight - groundHeight - obstacleHeight / 2
+                });
+            }
+        }
+
+        // --- Mapping foodName to Emoji ---
+        function getFoodEmoji(foodName) {
+            switch (foodName) {
+                case "apples": return "🍎";
+                case "bananas": return "🍌";
+                case "oranges": return "🍊";
+                case "strawberries": return "🍓";
+                case "watermelon": return "🍉";
+                case "mangoes": return "🥭";
+                case "pineapples": return "🍍";
+                case "cherries": return "🍒";
+                case "broccoli": return "🥦";
+                case "carrots": return "🥕";
+                case "corn": return "🌽";
+                case "rice": return "🍚";
+                case "noodles": return "🍜";
+                case "chicken": return "🍗";
+                case "beef": return "🥩";
+                case "fish": return "🐟"; // Hoặc 🐠
+                case "eggs": return "🥚";
+                case "pizza": return "🍕";
+                case "a hamburger": return "🍔";
+                case "ice cream": return "🍦";
+                default: return "❓"; // Emoji mặc định nếu không tìm thấy
+            }
+        }
+
+
+        // --- Drawing Functions ---
+        function drawGround() {
+            ctx.fillStyle = "#a0522d"; // Màu nâu đất
+            ctx.fillRect(0, groundY, canvasWidth, groundHeight);
+        }
+
+        function drawPlayer() {
+            ctx.fillStyle = playerColor; // Màu đỏ cho nhân vật
+
+            // Vẽ hình nhân vật đơn giản hướng về bên phải
+            // Vẽ thân
+            ctx.fillRect(playerX + playerShapeSize * 0.2, playerY, playerShapeSize * 0.6, playerShapeSize * 0.8);
+            // Vẽ đầu
+            ctx.beginPath();
+            ctx.arc(playerX + playerShapeSize / 2, playerY - playerShapeSize * 0.3, playerShapeSize * 0.3, 0, Math.PI * 2);
+            ctx.fill();
+            // Vẽ chân (mô phỏng đang chạy)
+            ctx.fillRect(playerX + playerShapeSize * 0.1, playerY + playerShapeSize * 0.8, playerShapeSize * 0.3, playerShapeSize * 0.2);
+            ctx.fillRect(playerX + playerShapeSize * 0.6, playerY + playerShapeSize * 0.8, playerShapeSize * 0.3, playerShapeSize * 0.2);
+            // Vẽ tay (mô phỏng đang chạy)
+            ctx.fillRect(playerX, playerY + playerShapeSize * 0.2, playerShapeSize * 0.3, playerShapeSize * 0.15);
+            ctx.fillRect(playerX + playerShapeSize * 0.7, playerY + playerShapeSize * 0.4, playerShapeSize * 0.3, playerShapeSize * 0.15);
+
+            // Có thể thêm hiệu ứng khi nhảy (ví dụ: thay đổi màu hoặc hình dáng nhẹ)
+            if (isJumping) {
+                 // Ví dụ: Vẽ thêm một vòng sáng nhỏ quanh nhân vật khi nhảy
+                 ctx.strokeStyle = "yellow";
+                 ctx.lineWidth = 2;
+                 ctx.beginPath();
+                 ctx.arc(playerX + playerSize / 2, playerY + playerSize / 2, playerSize * 0.8, 0, Math.PI * 2);
+                 ctx.stroke();
+            }
+        }
+
+
+        function drawObstacles() {
+            obstacles.forEach((obstacle, index) => {
+                const foodEmoji = getFoodEmoji(obstacle.foodName);
+
+                ctx.globalAlpha = obstacle.cleared ? 0.3 : 1; // Giảm opacity nếu đã vượt qua
+
+                // Vẽ Emoji món ăn
+                ctx.font = `${obstacleEmojiSize}px Arial`; // Sử dụng font Arial cho emoji
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                // Vị trí vẽ emoji (căn giữa chiều rộng obstacleWidth và chiều cao obstacleHeight)
+                const emojiDrawX = obstacle.x + obstacleWidth / 2;
+                const emojiDrawY = obstacle.emojiY; // Sử dụng vị trí y đã tính trước
+
+                ctx.fillText(foodEmoji, emojiDrawX, emojiDrawY);
+
+                // Vẽ tên món ăn (tùy chọn, có thể bỏ đi nếu muốn chỉ dùng emoji)
+                ctx.fillStyle = "black"; // Màu chữ đen
+                ctx.font = "10px Arial"; // Kích thước chữ nhỏ hơn
+                ctx.textAlign = "center";
+                ctx.textBaseline = "top"; // Căn trên để vẽ dưới emoji
+                ctx.fillText(obstacle.foodName, emojiDrawX, obstacle.emojiY + obstacleEmojiSize / 2 + 5); // Vẽ dưới emoji
+
+                 // Vẽ số thứ tự chướng ngại vật (tùy chọn, có thể bỏ đi)
+                 ctx.fillStyle = "rgba(0,0,0,0.5)"; // Màu xám mờ cho số thứ tự
+                 ctx.font = "10px Arial";
+                 ctx.fillText(index + 1, obstacle.x + obstacleWidth / 2, obstacle.emojiY - obstacleEmojiSize / 2 - 5); // Vẽ trên emoji
+
+                ctx.globalAlpha = 1; // Reset opacity
+            });
+        }
+
+        function drawGame() {
+            // Xóa toàn bộ canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            // Vẽ các yếu tố game
+            drawGround();
+            drawObstacles(); // Vẽ chướng ngại vật trước nhân vật
+            drawPlayer(); // Vẽ nhân vật sau để nó nằm trên chướng ngại vật (khi nhảy)
+
+            // Hiển thị thông báo "Rất tốt!" hoặc "Chưa đúng!" trên canvas (tùy chọn)
+            // Có thể thêm logic để hiển thị tạm thời khi có phản hồi
+        }
+
+        // --- Game Loop / Animation ---
+        function gameLoop() {
+            // Cập nhật vị trí nhân vật theo hiệu ứng vật lý
+            if (isJumping || playerY < playerGroundY) { // Áp dụng trọng lực khi đang nhảy hoặc đang rơi
+                velocityY += gravity;
+                playerY += velocityY;
+
+                // Kiểm tra va chạm với mặt đất
+                if (playerY >= playerGroundY) {
+                    playerY = playerGroundY; // Đặt lại vị trí trên mặt đất
+                    velocityY = 0; // Dừng rơi
+                    isJumping = false; // Kết thúc nhảy
+                }
+            }
+
+            // Di chuyển màn hình ngang khi cần
+            if (isMoving) {
+                // Di chuyển tất cả chướng ngại vật sang trái
+                obstacles.forEach(obstacle => {
+                    obstacle.x -= gameSpeed;
+                });
+                moveDistance -= gameSpeed;
+
+                // Dừng di chuyển khi đã đi đủ khoảng cách
+                if (moveDistance <= 0) {
+                    isMoving = false;
+                    moveDistance = 0;
+                }
+            }
+
+            drawGame(); // Vẽ lại trạng thái game
+
+            requestAnimationFrame(gameLoop); // Lặp lại vòng lặp
+        }
+
+        // --- Speech Recognition and Synthesis ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onresult = function (event) {
+                const transcript = event.results.length > 0 ? event.results[0][0].transcript.trim() : '';
+                transcriptDiv.textContent = `Câu trả lời của bạn: ${transcript}`;
+                studentAnswers[currentIndex] = transcript;
+                provideFeedback(transcript);
+                answerButton.disabled = false;
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Lỗi nhận dạng giọng nói:", event.error);
+                let errorMessage = `Lỗi nhận dạng giọng nói: ${event.error}`;
+                if (event.error === 'no-speech') {
+                    errorMessage = "Không phát hiện thấy giọng nói. Vui lòng thử lại.";
+                } else if (event.error === 'audio-capture') {
+                    errorMessage = "Lỗi thu âm thanh. Kiểm tra micro của bạn.";
+                } else if (event.error === 'not-allowed') {
+                    errorMessage = "Quyền truy cập micro bị từ chối. Vui lòng cấp quyền trong cài đặt trình duyệt.";
+                } else {
+                     errorMessage = `Lỗi nhận dạng giọng nói: ${event.error}. Vui lòng thử lại.`;
+                }
+                feedbackDiv.textContent = errorMessage;
+                feedbackDiv.style.display = 'block';
+                feedbackDiv.style.backgroundColor = '#f8d7da'; // Màu đỏ nhạt cho lỗi
+                feedbackDiv.style.borderColor = '#f5c6cb';
+                speakText("Có lỗi xảy ra, bạn hãy thử lại.", 'vi-VN');
+                answerButton.disabled = false;
+            };
+
+            recognition.onstart = function() {
+                answerButton.disabled = true;
+                transcriptDiv.textContent = "Đang nghe...";
+                 feedbackDiv.style.display = 'none'; // Ẩn phản hồi cũ khi bắt đầu nghe
+            };
+
+            recognition.onend = function() {
+                 answerButton.disabled = false;
+                 // Nếu không có kết quả nào được xử lý (ví dụ: người dùng không nói gì)
+                 if (transcriptDiv.textContent === "Đang nghe...") {
+                     transcriptDiv.textContent = "Không phát hiện thấy giọng nói.";
+                     feedbackDiv.textContent = "Không phát hiện thấy giọng nói. Bạn hãy thử lại nhé!";
+                     feedbackDiv.style.display = 'block';
+                     feedbackDiv.style.backgroundColor = '#fff3cd'; // Màu vàng nhạt
+                     feedbackDiv.style.borderColor = '#ffeeba';
+                     speakText("Không phát hiện thấy giọng nói. Bạn hãy thử lại nhé!", 'vi-VN');
+                 }
+            };
+
+        } else {
+            console.warn("API Nhận dạng giọng nói không được hỗ trợ trong trình duyệt này.");
+            if (answerButton) {
+                answerButton.disabled = true;
+                answerButton.textContent = "🎤 API không hỗ trợ";
+            }
+            questionArea.textContent = "Trình duyệt của bạn không hỗ trợ nhận dạng giọng nói. Vui lòng thử trình duyệt khác (ví dụ: Google Chrome).";
+        }
+
+        function speakText(text, lang = 'en-US') {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = lang;
+            speechSynthesis.speak(utterance);
+        }
+
+        // --- Game Logic and Flow ---
+        function speakQuestion() {
+            if (currentIndex >= questions.length) {
+                questionArea.textContent = "🎉 Bạn đã hoàn thành tất cả các chướng ngại vật!";
+                targetSentenceArea.style.display = 'none';
+                disableButtonsOnComplete();
+                displayResults();
+                return;
+            }
+
+            const currentQuestionData = questions[currentIndex];
+            speakText(currentQuestionData.question, 'en-US');
+            questionArea.textContent = `Câu hỏi ${currentIndex + 1}/${questions.length}: ${currentQuestionData.question}`;
+
+            targetSentenceArea.style.display = 'none';
+            if (currentQuestionData.correctAnswer) { // Hiển thị câu trả lời mục tiêu nếu có
+                targetSentenceArea.textContent = `Hãy đọc: "${currentQuestionData.correctAnswer}"`;
+                targetSentenceArea.style.display = 'block';
+            }
+
+            transcriptDiv.textContent = "";
+            feedbackDiv.textContent = "";
+            feedbackDiv.style.display = 'none';
+            resultsDisplayArea.style.display = 'none';
+            resultsDisplayArea.innerHTML = '';
+
+            startButton.disabled = false;
+            answerButton.disabled = !SpeechRecognition;
+            nextButton.disabled = false;
+            viewResultsButton.disabled = false;
+        }
+
+        function startRecognition() {
+            if (currentIndex >= questions.length) {
+                transcriptDiv.textContent = "Bạn đã hoàn thành tất cả câu hỏi.";
+                return;
+            }
+             // Chỉ cho phép trả lời nếu không đang nhảy hoặc di chuyển màn hình
+            if (!isJumping && !isMoving) {
+                // Khởi tạo Tone.js context khi người dùng tương tác lần đầu
+                if (Tone.context.state !== 'running') {
+                     Tone.start();
+                     console.log('Tone.js context started');
+                }
+                if (recognition) {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error("Lỗi khi bắt đầu nhận dạng:", e);
+                        transcriptDiv.textContent = "Không thể khởi động micro.";
+                        if (e.name === 'NotAllowedError') {
+                            transcriptDiv.textContent = "Bạn cần cấp quyền truy cập micro.";
+                        } else if (e.name === 'InvalidStateError') {
+                            console.warn("Recognition đang chạy, không thể bắt đầu lại ngay.");
+                             feedbackDiv.textContent = "Hệ thống đang bận, vui lòng thử lại sau ít giây.";
+                             feedbackDiv.style.display = 'block';
+                             feedbackDiv.style.backgroundColor = '#fff3cd';
+                             feedbackDiv.style.borderColor = '#ffeeba';
+                        }
+                        answerButton.disabled = false;
+                    }
+                } else {
+                    transcriptDiv.textContent = "Nhận dạng giọng nói không khả dụng.";
+                }
+            } else {
+                 feedbackDiv.textContent = "Vui lòng đợi hiệu ứng kết thúc trước khi trả lời.";
+                 feedbackDiv.style.display = 'block';
+                 feedbackDiv.style.backgroundColor = '#fff3cd';
+                 feedbackDiv.style.borderColor = '#ffeeba';
+            }
+        }
+
+        function provideFeedback(answer) {
+            feedbackDiv.style.display = 'block';
+            const currentQuestionData = questions[currentIndex];
+            let comment = "";
+            let speakFeedbackText = "";
+
+            if (!answer || answer.trim() === "") {
+                comment = "⚠️ Không phát hiện thấy câu trả lời. Bạn hãy đọc lại nhé!";
+                speakFeedbackText = "Bạn hãy đọc lại nhé!";
+                feedbackDiv.style.backgroundColor = '#fff3cd'; // Màu vàng nhạt cho cảnh báo
+                feedbackDiv.style.borderColor = '#ffeeba';
+            } else if (currentQuestionData.correctAnswer) {
+                const normalize = (text) => text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").replace(/\s+/g, ' ').trim();
+                const normalizedAnswer = normalize(answer);
+                const normalizedCorrectAnswer = normalize(currentQuestionData.correctAnswer);
+
+                if (normalizedAnswer === normalizedCorrectAnswer) {
+                    comment = "✅ Bạn nói rất tốt! Bạn đã vượt qua chướng ngại vật!";
+                    speakFeedbackText = "Bạn nói rất tốt!";
+                    feedbackDiv.style.backgroundColor = '#d4edda'; // Màu xanh lá nhạt cho đúng
+                    feedbackDiv.style.borderColor = '#c3e6cb';
+
+                    // Logic vượt chướng ngại vật trên canvas
+                    // Kiểm tra xem chướng ngại vật hiện tại có tồn tại và chưa được vượt qua không
+                    if (currentIndex < obstacles.length && obstacles[currentIndex] && !obstacles[currentIndex].cleared) {
+                        obstacles[currentIndex].cleared = true;
+                        obstaclesClearedCount++;
+                        obstaclesClearedSpan.textContent = obstaclesClearedCount;
+
+                        // Kích hoạt hiệu ứng nhảy và di chuyển ngang
+                        if (!isJumping) { // Chỉ nhảy nếu đang không nhảy
+                             isJumping = true;
+                             velocityY = jumpStrength; // Bắt đầu nhảy lên
+                             // Phát âm thanh nhảy mới
+                             if (jumpSynth) {
+                                const now = Tone.now();
+                                jumpSynth.triggerAttackRelease("C5", "16n", now);
+                                jumpSynth.triggerAttackRelease("G5", "16n", now + 0.05); // Play G5 slightly after C5
+                                jumpSynth.triggerAttackRelease("C6", "16n", now + 0.1);  // Play C6 slightly after G5
+                             }
+                        }
+                        // Kích hoạt di chuyển ngang ngay sau khi trả lời đúng
+                        isMoving = true;
+                        moveDistance = obstacleSpacing + obstacleWidth; // Khoảng cách di chuyển ngang
+                    }
+
+                } else {
+                    comment = `❌ Chưa đúng lắm. Bạn hãy thử đọc lại nhé! (Câu đúng nên là: "${currentQuestionData.correctAnswer}")`;
+                    speakFeedbackText = "Bạn hãy đọc lại nhé!";
+                    feedbackDiv.style.backgroundColor = '#f8d7da'; // Màu đỏ nhạt cho sai
+                    feedbackDiv.style.borderColor = '#f5c6cb';
+                }
+            } else {
+                // Đối với câu hỏi không có đáp án cụ thể
+                comment = "✅ Đã ghi lại câu trả lời của bạn.";
+                feedbackDiv.style.backgroundColor = '#d4edda'; // Màu xanh lá nhạt
+                feedbackDiv.style.borderColor = '#c3e6cb';
+                 // Nếu không có đáp án đúng cụ thể, coi như vượt qua để có thể chuyển câu
+                 // Kiểm tra xem chướng ngại vật hiện tại có tồn tại và chưa được vượt qua không
+                 if (currentIndex < obstacles.length && obstacles[currentIndex] && !obstacles[currentIndex].cleared) {
+                    obstacles[currentIndex].cleared = true;
+                    obstaclesClearedCount++;
+                    obstaclesClearedSpan.textContent = obstaclesClearedCount;
+                     // Vẫn kích hoạt hiệu ứng di chuyển ngang
+                    isMoving = true;
+                    moveDistance = obstacleSpacing + obstacleWidth;
+                 }
+            }
+            feedbackDiv.textContent = comment;
+            if (speakFeedbackText) {
+                speakText(speakFeedbackText, 'vi-VN');
+            }
+        }
+
+        function nextQuestion() {
+            // Chỉ chuyển câu hỏi nếu chướng ngại vật hiện tại đã được vượt qua VÀ hiệu ứng di chuyển đã dừng
+            // Thêm kiểm tra currentIndex hợp lệ và obstacles[currentIndex] tồn tại
+            if (currentIndex < questions.length && obstacles[currentIndex] && obstacles[currentIndex].cleared && !isMoving && !isJumping) {
+                 currentIndex++;
+                if (currentIndex < questions.length) {
+                    speakQuestion();
+                } else {
+                    questionArea.textContent = "🎉 Bạn đã hoàn thành tất cả các chướng ngại vật!";
+                    targetSentenceArea.style.display = 'none';
+                    transcriptDiv.textContent = "";
+                    feedbackDiv.style.display = 'none';
+                    disableButtonsOnComplete();
+                    displayResults();
+                }
+            } else if (currentIndex < questions.length && obstacles[currentIndex] && (!obstacles[currentIndex].cleared || isMoving || isJumping)) {
+                 // Nếu chưa vượt qua chướng ngại vật hoặc hiệu ứng đang chạy
+                 feedbackDiv.textContent = "Bạn cần trả lời đúng câu hỏi hiện tại và đợi hiệu ứng kết thúc để chuyển sang chướng ngại vật tiếp theo!";
+                 feedbackDiv.style.display = 'block';
+                 feedbackDiv.style.backgroundColor = '#fff3cd'; // Màu vàng nhạt
+                 feedbackDiv.style.borderColor = '#ffeeba';
+                 speakText("Bạn cần trả lời đúng câu hỏi hiện tại và đợi hiệu ứng kết thúc để chuyển sang chướng ngại vật tiếp theo!", 'vi-VN');
+            } else if (currentIndex >= questions.length) {
+                 // Đã ở câu cuối cùng hoặc đã hoàn thành
+                 questionArea.textContent = "🎉 Bạn đã hoàn thành tất cả các chướng ngại vật!";
+                 targetSentenceArea.style.display = 'none';
+                 transcriptDiv.textContent = "";
+                 feedbackDiv.style.display = 'none';
+                 disableButtonsOnComplete();
+                 displayResults();
+            } else {
+                 // Trường hợp khác (ví dụ: obstacles[currentIndex] không tồn tại)
+                 console.error("Lỗi: Không tìm thấy chướng ngại vật cho câu hỏi hiện tại.");
+                 feedbackDiv.textContent = "Đã xảy ra lỗi. Vui lòng tải lại trang.";
+                 feedbackDiv.style.display = 'block';
+                 feedbackDiv.style.backgroundColor = '#f8d7da';
+                 feedbackDiv.style.borderColor = '#f5c6cb';
+            }
+        }
+
+
+        function disableButtonsOnComplete() {
+            startButton.disabled = true;
+            answerButton.disabled = true;
+            nextButton.disabled = true;
+        }
+
+        function displayResults() {
+            resultsDisplayArea.innerHTML = '';
+
+            let resultHTML = "<h3>Bảng Kết Quả Luyện Nói</h3>";
+            const list = questions.map((q, i) => {
+                const userAnswer = studentAnswers[i] || "(chưa trả lời)";
+                let correctness = "";
+                // Kiểm tra obstacles[i] trước khi truy cập .cleared
+                let obstacleStatus = obstacles[i] ? (obstacles[i].cleared ? "✅ Đã vượt qua" : "❌ Chưa vượt qua") : "N/A";
+
+
+                if (q.correctAnswer) {
+                    const normalize = (text) => text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").replace(/\s+/g, ' ').trim();
+                    const normalizedUserAnswer = normalize(userAnswer);
+                    const normalizedCorrectAnswer = normalize(q.correctAnswer);
+
+                    if (userAnswer !== "(chưa trả lời)" && normalizedUserAnswer === normalizedCorrectAnswer) {
+                        correctness = " <span style='color: green; font-weight:bold;'>(Rất tốt!)</span>";
+                    } else if (userAnswer !== "(chưa trả lời)") {
+                        correctness = ` <span style='color: red; font-weight:bold;'>(Cần xem lại)</span> - Đáp án đúng: <em>"${q.correctAnswer}"</em>`;
+                    } else {
+                        correctness = " <span style='color: orange;'>(chưa trả lời)</span>";
+                    }
+                } else if (userAnswer === "(chưa trả lời)") {
+                        correctness = " <span style='color: orange;'>(chưa trả lời)</span>";
+                } else {
+                     // Câu không có đáp án cụ thể nhưng đã trả lời
+                     correctness = " <span style='color: green; font-weight:bold;'>(Đã ghi nhận)</span>";
+                }
+
+
+                return `<p><strong>Chướng ngại vật ${i + 1}:</strong> ${q.question}<br/>
+                            <em>Câu trả lời của bạn:</em> ${userAnswer}${correctness} <br/>
+                            <em>Trạng thái:</em> ${obstacleStatus}</p>`;
+            }).join('');
+
+            resultHTML += list;
+            resultHTML += `<button onclick="shareGeneratedResults()">📤 Chia sẻ kết quả này</button>`;
+            resultHTML += `<div id="copyFeedback" style="display:none;"></div>`;
+
+            resultsDisplayArea.innerHTML = resultHTML;
+            resultsDisplayArea.style.display = 'block';
+            resultsDisplayArea.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function shareGeneratedResults() {
+            const listItems = questions.map((q, i) => {
+                const userAnswer = studentAnswers[i] || "(chưa trả lời)";
+                let correctnessInfo = "";
+                 // Kiểm tra obstacles[i] trước khi truy cập .cleared
+                let obstacleStatus = obstacles[i] ? (obstacles[i].cleared ? "Đã vượt qua" : "Chưa vượt qua") : "N/A";
+
+
+                    if (q.correctAnswer) {
+                        const normalize = (text) => text.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").replace(/\s+/g, ' ').trim();
+                        const normalizedUserAnswer = normalize(userAnswer);
+                        const normalizedCorrectAnswer = normalize(q.correctAnswer);
+                        if (userAnswer !== "(chưa trả lời)" && normalizedUserAnswer === normalizedCorrectAnswer) {
+                            correctnessInfo = " <span style='color: green; font-weight:bold;'>(Rất tốt!)</span>";
+                        } else if (userAnswer !== "(chưa trả lời)") {
+                            correctnessInfo = ` <span style='color: red; font-weight:bold;'>(Cần xem lại)</span> - Đáp án đúng: <em>"${q.correctAnswer}"</em>`;
+                        } else {
+                            correctnessInfo = " <span style='color: orange;'>(chưa trả lời)</span>";
+                        }
+                    } else if (userAnswer === "(chưa trả lời)") {
+                            correctnessInfo = " <span style='color: orange;'>(chưa trả lời)</span>";
+                    } else {
+                         correctnessInfo = " <span style='color: green; font-weight:bold;'>(Đã ghi nhận)</span>";
+                    }
+
+
+                return `
+                    <div style="margin-bottom: 15px; padding-bottom:10px; border-bottom: 1px solid #eee;">
+                        <p style="font-weight: bold; color: #0056b3; margin-bottom: 5px;">Chướng ngại vật ${i + 1}: ${q.question}</p>
+                         <p style="margin-top:5px;"><em>Câu trả lời của bạn:</em> ${userAnswer}${correctnessInfo}</p>
+                        <p style="margin-top:5px;"><em>Trạng thái:</em> ${obstacleStatus}</p>
+                    </div>`;
+            }).join('');
+
+            const htmlContent = `
+                <!DOCTYPE html>
+                <html lang="vi">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Kết quả Luyện Nói Tiếng Anh của Bé</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f7f6; color: #333; line-height: 1.6; }
+                        .container-result { max-width: 700px; margin: 20px auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                        h2 { color: #0056b3; text-align: center; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 25px; }
+                        p { margin-bottom: 8px; }
+                        em { font-style: italic; color: #555; }
+                    </style>
+                </head>
+                <body>
+                    <div class="container-result">
+                        <h2>Kết quả Luyện Nói Tiếng Anh - Vượt Chướng Ngại Vật</h2>
+                        ${listItems}
+                        <p style="text-align:center; margin-top:25px; font-size:0.9em; color: #777;">Kết quả được tạo vào lúc: ${new Date().toLocaleString('vi-VN')}</p>
+                    </div>
+                </body>
+                </html>`;
+
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const copyFeedbackDiv = document.getElementById("copyFeedback");
+            copyFeedbackDiv.style.display = 'block';
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(() => {
+                    copyFeedbackDiv.innerHTML = `🔗 Link kết quả đã được sao chép! Bạn có thể dán (Ctrl+V hoặc Command+V) để chia sẻ. Hoặc <a href="${url}" target="_blank" rel="noopener noreferrer">xem kết quả tại đây</a>.`;
+                }).catch(err => {
+                    console.error('Không thể sao chép link tự động: ', err);
+                    copyFeedbackDiv.innerHTML = `Không thể tự động sao chép link. Vui lòng sao chép thủ công: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+                });
+            } else {
+                copyFeedbackDiv.innerHTML = `Trình duyệt không hỗ trợ sao chép tự động. Vui lòng sao chép link sau để chia sẻ: <a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            }
+             window.open(url, '_blank');
+        }
+
+        // --- Initialization ---
+        function initGame() {
+            totalObstaclesSpan.textContent = questions.length; // Cập nhật tổng số chướng ngại vật ở đây
+            resizeCanvas(); // Thiết lập kích thước canvas ban đầu và vị trí ban đầu của playerY, và gọi initializeObstacles()
+            // Khởi tạo Tone.js synthesizer
+            // Sử dụng một bộ tổng hợp khác và phát 2 nốt ngắn để tạo âm thanh nhảy
+            jumpSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: {
+                    type: "triangle" // Sử dụng sóng tam giác
+                },
+                envelope: {
+                    attack: 0.005,
+                    decay: 0.1,
+                    sustain: 0.05,
+                    release: 0.1
+                }
+            }).toDestination();
+
+            gameLoop(); // Bắt đầu vòng lặp game
+            // speakQuestion(); // Bỏ comment nếu muốn tự động bắt đầu
+        }
+
+        // Bắt đầu game khi trang tải xong
+        window.onload = initGame;
+
+    </script>
+</body>
+</html>
